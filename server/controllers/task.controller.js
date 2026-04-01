@@ -3,7 +3,7 @@ const prisma = require('../config/prisma');
 const createTask = async(req,res)=>{
     try{
         const {boardId} = req.params;
-        const {title,description} = req.body;
+        const {title,description, status} = req.body;
         const task= await prisma.task.create({
             data:{
                 title,

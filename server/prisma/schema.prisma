@@ -42,13 +42,21 @@ model Board {
   tasks     Task[]
 }
 
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  TESTING
+  DONE
+}
+
 model Task {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   title       String
   description String?
-  status      String   @default("TODO")
+  status      TaskStatus @default(TODO)
   boardId     String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime   @default(now())
 
   board Board @relation(fields: [boardId], references: [id])
 }
