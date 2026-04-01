@@ -8,7 +8,7 @@ function Login() {
   const navigate = useNavigate();
   const handleLogin = async () => {
     try {
-      const res = await api.post("/api/auth/login", { email, password });
+      const res = await api.post("/auth/login", { email, password });
       const token = res.data.token;
       localStorage.setItem("token", token);
       navigate("/dashboard");
@@ -18,37 +18,33 @@ function Login() {
     }
   };
   return (
-    <div
-      style={{
-        padding: "50px",
-        maxWidth: "400px",
-        margin: "auto",
-        border: "1px solid #ccc",
-        borderRadius: "10px",
-      }}
-    >
-      <h2>Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ display: "block", marginBottom: "10px", width: "100%" }}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => {
-          setPassword(e.target.value);
-          console.log(password);
-        }}
-        style={{ display: "block", marginBottom: "10px", width: "100%" }}
-      />
-      <button style={{ width: "100%" }} onClick={handleLogin}>
-        {" "}
-        Login
-      </button>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="bg-white p-6 rounded-lg shadow-md w-80">
+        <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border rounded mb-3"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            console.log(password);
+          }}
+          className="w-full p-2 border rounded mb-3"
+        />
+        <button
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          onClick={handleLogin}
+        >
+          Login
+        </button>
+      </div>
     </div>
   );
 }
