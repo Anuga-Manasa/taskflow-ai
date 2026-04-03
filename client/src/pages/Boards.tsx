@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import TaskModal from "../components/TaskModal";
 import { DndContext } from "@dnd-kit/core";
 import Column from "../components/Column";
+import socket from "../socket";
 
 function Boards() {
   const { boardId } = useParams();
   const [tasks, setTasks] = useState<any[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [workSpaceId, setWorkspaceId] = useState("");
+  const [members, setMembers] = useState<any>([]);
 
   const todo = tasks.filter((t) => t.status === "TODO");
   const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS");
@@ -32,13 +35,37 @@ function Boards() {
       console.log(error);
     }
   };
-  const createTasks = async (title: String, description: String) => {
+  const createTasks = async (
+    title: string,
+    description: string,
+    assignedToId: string,
+  ) => {
     if (!title) {
       return;
     }
-    await api.post(`/boards/${boardId}/tasks`, { title, description });
+    await api.post(`/boards/${boardId}/tasks`, {
+      title,
+      description,
+      assignedToId,
+    });
     fetchTasks();
     setIsCreateOpen(false);
+  };
+  const getBoardDetails = async () => {
+    try {
+      const res = await api.get(`/boards/${boardId}`);
+      setWorkspaceId(res.data.board.workspaceId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchMembers = async () => {
+    try {
+      const res = await api.get(`/workspaces/${workSpaceId}/members`);
+      setMembers(res.data.members);
+    } catch (error) {
+      console.log(error);
+    }
   };
   const updateStatus = async (taskId: string, status: string) => {
     await api.patch(`/boards/tasks/${taskId}/status`, { status });
@@ -46,7 +73,18 @@ function Boards() {
   };
   useEffect(() => {
     fetchTasks();
+    getBoardDetails();
+    socket.on("taskUpdated", () => {
+      fetchTasks();
+      getBoardDetails();
+    });
+    return () => {
+      socket.off("taskUpdated");
+    };
   }, []);
+  useEffect(() => {
+    fetchMembers();
+  }, [workSpaceId]);
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
     if (!over) return;
@@ -71,20 +109,6 @@ function Boards() {
           {columns.map((col) => (
             <Column key={col.id} col={col} updateStatus={updateStatus} />
           ))}
-          {/*<div key={col.id} className="bg-gray-100 p-3 rounded min-h-[400px]">
-              <h2 className="font-bold-mb-3">{col.title}</h2>
-              {col.data.map((task: any) => (
-                <div key={task.id} className="bg-white p-2 mb-2 rounded shadow">
-                  {task.title}
-                  <button
-                    onClick={() => updateStatus(task.id, "IN_PROGRESS")}
-                    className="text-xs text-blue-500 mt-1"
-                  >
-                    Move →
-                  </button>
-                </div>
-              ))}
-            </div>*/}
         </div>
       </DndContext>
       {isCreateOpen && (
@@ -92,6 +116,7 @@ function Boards() {
           isOpen={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           onCreate={createTasks}
+          members={members}
         />
       )}
     </div>

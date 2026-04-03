@@ -10,6 +10,13 @@ const createWorkspace=async (req,res)=>{
             ownerId,
         },
     });
+    await prisma.workspaceMember.create({
+        data:{
+            userId:ownerId,
+            workspaceId:workspace.id,
+            role:"ADMIN",
+        },
+    });
     res.status(201).json({message:"Workspace created successfully",workspace});
 } catch(error){
     res.status(500).json({error:error.message});
@@ -18,9 +25,26 @@ const createWorkspace=async (req,res)=>{
 };
 const getWorkspaces= async (req,res)=>{
     try{
-        const ownerId=req.user.userId;
+        const userId=req.user.userId;
         const workspaces=await prisma.workspace.findMany({
-            where:{ownerId},
+            where:{
+                OR:[
+                    {ownerId:userId},
+                    {
+                        members:{
+                            some:{
+                                userId,
+                            },
+                        },
+                    },
+                ],
+            },
+            include:{
+                members:{
+                    where:{userId},
+                    select:{role:true},
+                },
+            },
         });
         res.status(200).json({message:"Workspaces retrived successfully",workspaces});
     }catch(error){
@@ -28,5 +52,27 @@ const getWorkspaces= async (req,res)=>{
     }
 
 };
+const addMember=async(req,res)=>{
+    try{
+        const {email}=req.body;
+        const {workspaceId}=req.params;
+        const user= await prisma.user.findUnique({
+            where:{email},
+        });
+        if(!user){
+            return res.status(404).json({message:"user not found"});
+        }
+        const member=await prisma.workspaceMember.create({
+            data:{
+                userId:user.id,
+                workspaceId,
+            },
+        });
+        res.status(201).json(member);
+    }catch(error){
+        res.status(500).json({error:error.message});
+    }
 
-module.exports= {createWorkspace,getWorkspaces};
+};
+
+module.exports= {createWorkspace,getWorkspaces,addMember};

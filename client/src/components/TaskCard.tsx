@@ -20,6 +20,9 @@ function TaskCard({ task }: any) {
       className="bg-white p-2 mb-2 rounded shadow cursor-grab"
     >
       {task.title}
+      <div className="text-sm text-gray-500 mt-1">
+        {task.assignedTo?.name || "Unassigned"}
+      </div>
     </div>
   );
 }

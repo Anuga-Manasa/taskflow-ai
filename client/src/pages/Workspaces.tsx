@@ -7,11 +7,24 @@ function Workspaces() {
   const { workspaceId } = useParams();
   const [boards, setBoards] = useState<any[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
   const navigate = useNavigate();
   const fetchBoards = async () => {
     try {
       const res = await api.get(`/workspaces/${workspaceId}/boards`);
       setBoards(res.data.boards);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchWorkSpaceDetails = async () => {
+    try {
+      const resWorkspace = await api.get("/workspaces");
+      const currentWorkspace = resWorkspace.data.workspaces.find(
+        (ws: any) => ws.id === workspaceId,
+      );
+      setRole(currentWorkspace?.members[0]?.role || "ADMIN");
     } catch (error) {
       console.log(error);
     }
@@ -24,7 +37,16 @@ function Workspaces() {
   };
   useEffect(() => {
     fetchBoards();
+    fetchWorkSpaceDetails();
   }, []);
+
+  const handleInviteUser = async () => {
+    if (!email) {
+      return;
+    }
+    await api.post(`/workspaces/${workspaceId}/members`, { email });
+    setEmail("");
+  };
 
   return (
     <div className="p-6">
@@ -36,6 +58,23 @@ function Workspaces() {
       >
         + Create Board
       </button>
+      {role === "ADMIN" && (
+        <div className="mb-4 flex gap-2">
+          <input
+            className="p-2 rounded border"
+            type="email"
+            placeholder="Invite by email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <button
+            onClick={handleInviteUser}
+            className="bg-green-500 text-white px-3 rounded"
+          >
+            Invite
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-3 gap-4">
         {boards.map((board) => (
           <div
