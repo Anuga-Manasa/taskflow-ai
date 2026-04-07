@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import WorkspaceModal from "../components/WorkspaceModal";
+import Breadcrumb from "../components/Breadcrumb";
+import { useTopbar } from "../context/TopbarContext";
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const navigate = useNavigate();
   const [isCreateOpen, setIsCreateopen] = useState(false);
+  const [name, setName] = useState("");
+  const { setTitle } = useTopbar();
   const fetchWorkspaces = async () => {
     try {
       const res = await api.get("/workspaces");
@@ -15,9 +19,21 @@ function Dashboard() {
       console.log(error);
     }
   };
+  const fetchUser = async () => {
+    try {
+      const res = await api.get("/user/profile");
+      setName(res.data.user.name);
+    } catch (error) {
+      console.log("error in fetching user details");
+    }
+  };
   useEffect(() => {
     fetchWorkspaces();
+    fetchUser();
   }, []);
+  useEffect(() => {
+    setTitle(`Welcome, ${name}!`);
+  }, [name]);
 
   const createWorkspace = async (name: String) => {
     try {
@@ -30,18 +46,13 @@ function Dashboard() {
     }
   };
   return (
-    <div className="p-6">
+    <div className="p-4">
       {/*Header*/}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-blue"> Dashboard</h1>
-        <button className="bg-red-500 text-white px-4 py-2 rounded">
-          Logout
-        </button>
-      </div>
+      <h1 className="text-3xl font-semibold tracking-tight mb-4">Dashboard</h1>
       {/*Create workspace */}
       <button
         onClick={() => setIsCreateopen(true)}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-6"
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 mb-4 rounded transition"
       >
         + Create Workspace
       </button>
@@ -52,10 +63,10 @@ function Dashboard() {
         {workspaces.map((ws: any) => (
           <div
             key={ws.id}
-            className="bg-white p-4 rounded shadow hover:shadow-lg cursor-pointer"
+            className="bg-white p-4 rounded-xl shadow hover:shadow-lg cursor-pointer border border-gray-100"
             onClick={() => navigate(`/workspaces/${ws.id}`)}
           >
-            {ws.name}
+            <h3 className="text-lg">{ws.name}</h3>
           </div>
         ))}
       </div>

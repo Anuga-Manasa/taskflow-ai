@@ -1,12 +1,18 @@
 const express= require('express');
 const router= express.Router();
 
-const {createTask, getTasks, updateTaskStatus, getBoardById}= require('../controllers/task.controller');
+const {
+    createTask, getTasks, updateTaskStatus, 
+    getBoardById,createAttachments, assignTask}= require('../controllers/task.controller');
 const authMiddleware = require('../middleware/auth.middleware');
+const { upload } = require('../middleware/upload.middleware');
 
 router.post('/:boardId/tasks',authMiddleware,createTask);
 router.get('/:boardId/tasks',authMiddleware, getTasks);
 router.patch('/tasks/:taskId/status',authMiddleware,updateTaskStatus);
+router.patch('/tasks/:taskId/assign',authMiddleware,assignTask)
 router.get('/:boardId',authMiddleware,getBoardById);
+router.post('/tasks/:taskId/attachments',
+    authMiddleware,upload.single("file"),createAttachments);
 
 module.exports = router;

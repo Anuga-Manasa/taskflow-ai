@@ -23,6 +23,7 @@ model User {
   workspaces  Workspace[]
   memberships WorkspaceMember[]
   tasks       Task[]
+  activities  Activity[]
 }
 
 model Workspace {
@@ -31,9 +32,10 @@ model Workspace {
   ownerId   String
   createdAt DateTime @default(now())
 
-  owner   User              @relation(fields: [ownerId], references: [id])
-  boards  Board[]
-  members WorkspaceMember[]
+  owner      User              @relation(fields: [ownerId], references: [id])
+  boards     Board[]
+  members    WorkspaceMember[]
+  activities Activity[]
 }
 
 model Board {
@@ -62,8 +64,9 @@ model Task {
   assignedToId String?
   createdAt    DateTime   @default(now())
 
-  board      Board @relation(fields: [boardId], references: [id])
-  assignedTo User? @relation(fields: [assignedToId], references: [id])
+  board       Board        @relation(fields: [boardId], references: [id])
+  assignedTo  User?        @relation(fields: [assignedToId], references: [id])
+  attachments Attachment[]
 }
 
 model WorkspaceMember {
@@ -73,4 +76,23 @@ model WorkspaceMember {
   role        String    @default("MEMBER")
   user        User      @relation(fields: [userId], references: [id])
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId])
+}
+
+model Activity {
+  id          String    @id @default(uuid())
+  message     String
+  userId      String
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+model Attachment {
+  id     String @id @default(uuid())
+  url    String
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id])
 }

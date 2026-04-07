@@ -1,6 +1,6 @@
 import TaskCard from "./TaskCard";
 import { useDroppable } from "@dnd-kit/core";
-function Column({ col, updateStatus }: any) {
+function Column({ col, updateStatus, handleFileUpload, setSelectedTask }: any) {
   const { setNodeRef } = useDroppable({
     id: col.id,
   });
@@ -10,7 +10,13 @@ function Column({ col, updateStatus }: any) {
       <h2 className="font-bold mb-3">{col.title}</h2>
 
       {col.data.map((task: any) => (
-        <TaskCard key={task.id} task={task} updateStatus={updateStatus} />
+        <TaskCard
+          key={task.id}
+          task={task}
+          updateStatus={updateStatus}
+          handleFileUpload={handleFileUpload}
+          setSelectedTask={setSelectedTask}
+        />
       ))}
     </div>
   );

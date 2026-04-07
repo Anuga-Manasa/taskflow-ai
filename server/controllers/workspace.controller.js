@@ -1,4 +1,5 @@
 const prisma= require('../config/prisma');
+const { getIO } = require('../socket');
 
 const createWorkspace=async (req,res)=>{
     try{
@@ -68,11 +69,32 @@ const addMember=async(req,res)=>{
                 workspaceId,
             },
         });
+        getIO().emit("notification",{
+            message:`${user.name} added to workspace`,
+        })
         res.status(201).json(member);
     }catch(error){
         res.status(500).json({error:error.message});
     }
 
 };
+const getActivity=async(req,res)=>{
+    try{
+        const {workspaceId}=req.params;
+        const activities= await prisma.activity.findMany({
+            where:{workspaceId},
+            orderBy:{createdAt:"desc"},
+            include:{
+                user:{
+                    select:{name:true},
+                },   
+            },
+        });
+        res.json({message:"activities fetched",activities})
+    }catch(error){
+        res.status(500).json({error:error.message});
+    }
 
-module.exports= {createWorkspace,getWorkspaces,addMember};
+};
+
+module.exports= {createWorkspace,getWorkspaces,addMember,getActivity};
