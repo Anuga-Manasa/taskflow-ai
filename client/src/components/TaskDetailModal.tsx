@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import api from "../services/api";
 
 function TaskDetailModal({
   onClose,
@@ -12,19 +13,38 @@ function TaskDetailModal({
   const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState<any>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [summary, setSummary] = useState("");
   const [assignedTo, setAssignedTo] = useState(task.assignedTo?.id || "");
+  const handleSummarize = async () => {
+    const res = await api.post("boards/tasks/ai/summarize", {
+      text: task.description,
+    });
 
+    setSummary(res.data.summary);
+  };
   if (!task) return null;
   return (
     <div className="fixed bg-black bg-opacity-50 inset-0 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 shadow w-80">
+      <div className="bg-white rounded-lg p-6 shadow w-96">
         <h2 className="text-xl mb-2 font-bold">{task.title}</h2>
         <div className="mb-3">
-          <label className="block text-smmb-1">Status</label>
+          <label className="block text-sm mb-1">Task Description</label>
+          <p className="text-sm text-gray-500 mb-3">{task.description}</p>
+          <button
+            onClick={handleSummarize}
+            className="bg-purple-500 text-white px-3 py-1 rounded mb-2"
+          >
+            ✨ Generate Summary
+          </button>
+
+          {summary && (
+            <p className="text-sm text-gray-600 mb-2">AI: {summary}</p>
+          )}
+          <label className="block text-sm mb-1">Status</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full boarder p-2 rounded"
+            className="w-auto boarder m-2 p-2 rounded border"
           >
             <option value="TODO">TODO</option>
             <option value="IN_PROGRESS">IN PROGRESS</option>
@@ -34,7 +54,7 @@ function TaskDetailModal({
           </select>
           <button
             onClick={() => updateStatus(task.id, status)}
-            className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
+            className="m-2 bg-blue-500 text-white px-3 py-1 rounded"
           >
             Update Status
           </button>
@@ -44,11 +64,10 @@ function TaskDetailModal({
           <div className="text-sm text-gray-500 my-2 block">
             Task Assigned To: {task.assignedTo?.name || "Unassigned"}
           </div>
-          <label className="block text-sm mb-1">Assign</label>
           <select
             value={assignedTo}
             onChange={(e) => setAssignedTo(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-auto border m-2 p-2 rounded"
           >
             <option value="">Unassigned</option>
             {members.map((m: any) => (
@@ -59,7 +78,7 @@ function TaskDetailModal({
           </select>
           <button
             onClick={() => reAssign(task.id, assignedTo)}
-            className="mt-2 bg-green-500 text-white px-3 py-1 rounded"
+            className="m-2 bg-green-500 text-white px-3 py-1 rounded"
           >
             Assign
           </button>

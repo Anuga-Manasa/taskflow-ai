@@ -3,7 +3,7 @@ const router= express.Router();
 
 const {
     createTask, getTasks, updateTaskStatus, 
-    getBoardById,createAttachments, assignTask}= require('../controllers/task.controller');
+    getBoardById,createAttachments, assignTask,summarize}= require('../controllers/task.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 const { upload } = require('../middleware/upload.middleware');
 
@@ -14,5 +14,6 @@ router.patch('/tasks/:taskId/assign',authMiddleware,assignTask)
 router.get('/:boardId',authMiddleware,getBoardById);
 router.post('/tasks/:taskId/attachments',
     authMiddleware,upload.single("file"),createAttachments);
+router.post('/tasks/ai/summarize',authMiddleware,summarize)
 
 module.exports = router;

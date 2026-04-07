@@ -2,6 +2,7 @@ const prisma = require('../config/prisma');
 const { upload } = require('../middleware/upload.middleware');
 const { getIO } = require('../socket');
 const logActivity = require('../utils/activity');
+const { summarizeTask } = require('../utils/ai');
 
 const createTask = async(req,res)=>{
     try{
@@ -84,6 +85,7 @@ const updateTaskStatus = async(req,res)=>{
         res.status(500).json({error:error.message});
     }
 };
+
 const assignTask = async (req, res) => {
   const { taskId } = req.params;
   const { assignedToId } = req.body;
@@ -103,6 +105,7 @@ const assignTask = async (req, res) => {
 
   res.json(task);
 };
+
 const getBoardById= async(req,res)=>{
     try{
         const {boardId}=req.params;
@@ -114,6 +117,8 @@ const getBoardById= async(req,res)=>{
         res.status(500).json({error:error.message});
     }
 };
+
+
 const createAttachments=async(req,res)=>{
     try{
         const {taskId}=req.params;
@@ -128,5 +133,18 @@ const createAttachments=async(req,res)=>{
     }catch(error){
         res.status(500).json({error:error.message})
     }
-}
-module.exports ={createTask,getTasks,updateTaskStatus, getBoardById,createAttachments,assignTask};
+};
+
+const summarize=async(req,res)=>{
+ try {
+    const { text } = req.body;
+
+    const summary = await summarizeTask(text);
+
+    res.json({ summary });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+module.exports ={createTask,getTasks,updateTaskStatus, getBoardById,
+    createAttachments,assignTask,summarize};
