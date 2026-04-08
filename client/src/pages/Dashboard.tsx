@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import WorkspaceModal from "../components/WorkspaceModal";
-import Breadcrumb from "../components/Breadcrumb";
 import { useTopbar } from "../context/TopbarContext";
 
 function Dashboard() {

@@ -10,7 +10,6 @@ function TaskDetailModal({
   handleFileUpload,
 }: any) {
   const [status, setStatus] = useState(task.status);
-  const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState<any>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [summary, setSummary] = useState("");

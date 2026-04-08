@@ -1,10 +1,9 @@
 import { useDraggable } from "@dnd-kit/core";
 
-function TaskCard({ task, handleFileUpload, setSelectedTask }: any) {
+function TaskCard({ task, setSelectedTask }: any) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
   });
-  const taskId = task.id;
   const style = {
     transform: transform
       ? `translate(${transform.x}px, ${transform.y}px)`
