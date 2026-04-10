@@ -85,6 +85,7 @@ function TaskDetailModal({
         {/*Attchments*/}
         <div className="mb-3">
           <label className="block text-sm mb-1">Attachments</label>
+          <p>Attachments are not available in production.</p>
           <input
             type="file"
             onChange={(e) => {

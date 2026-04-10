@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import BoardModal from "../components/BoardModal";
 import Breadcrumb from "../components/Breadcrumb";
 import { useTopbar } from "../context/TopbarContext";
+import Loader from "../components/Loader";
 
 function Workspaces() {
   const { workspaceId } = useParams();
@@ -15,12 +16,16 @@ function Workspaces() {
   const { setTitle } = useTopbar();
   const [name, setName] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const fetchBoards = async () => {
     try {
+      setLoading(true);
       const res = await api.get(`/workspaces/${workspaceId}/boards`);
       setBoards(res.data.boards);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   const fetchWorkSpaceDetails = async () => {
@@ -54,8 +59,10 @@ function Workspaces() {
     if (!email) {
       return;
     }
+    setLoading(true);
     await api.post(`/workspaces/${workspaceId}/members`, { email });
     setEmail("");
+    setLoading(false);
   };
 
   const fetchActivities = async () => {
@@ -100,19 +107,27 @@ function Workspaces() {
           </button>
         </div>
       )}
-      <div className="grid grid-cols-3 gap-4">
-        {boards.map((board) => (
-          <div
-            key={board.id}
-            className="bg-white shadow p-4 rounded-xl hover:shadow-lg cursor-pointer"
-            onClick={() => {
-              navigate(`/boards/${board.id}`);
-            }}
-          >
-            {board.name}
-          </div>
-        ))}
-      </div>
+      {boards.length === 0 ? (
+        <div className="text-center mt-20 text-gray-500">
+          <p className="text-lg font-medium">No boards in this workspace 📂</p>
+          <p className="text-sm mt-2">Create a board to start managing tasks</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-4">
+          {boards.map((board) => (
+            <div
+              key={board.id}
+              className="bg-white shadow p-4 rounded-xl hover:shadow-lg cursor-pointer"
+              onClick={() => {
+                navigate(`/boards/${board.id}`);
+              }}
+            >
+              {board.name}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="mt-6">
         <h2 className="font-bold mb-3">Activity</h2>
 
@@ -129,6 +144,7 @@ function Workspaces() {
           onCreateBoard={createBoards}
         />
       )}
+      {loading && <Loader />}
     </div>
   );
 }

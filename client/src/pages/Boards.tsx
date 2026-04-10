@@ -8,6 +8,7 @@ import socket from "../socket";
 import TaskDetailModal from "../components/TaskDetailModal";
 import Breadcrumb from "../components/Breadcrumb";
 import { useTopbar } from "../context/TopbarContext";
+import Loader from "../components/Loader";
 
 function Boards() {
   const { boardId } = useParams();
@@ -27,6 +28,7 @@ function Boards() {
   const done = tasks.filter((t) => t.status === "DONE");
   const [boardName, setBoardName] = useState("");
   const { setTitle } = useTopbar();
+  const [loading, setLoading] = useState(false);
 
   const columns = [
     { id: "TODO", title: "TODO", data: todo },
@@ -38,10 +40,13 @@ function Boards() {
 
   const fetchTasks = async () => {
     try {
+      setLoading(true);
       const res = await api.get(`/boards/${boardId}/tasks`);
       setTasks(res.data.tasks);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   const createTasks = async (
@@ -58,8 +63,8 @@ function Boards() {
       assignedToId,
       workSpaceId,
     });
-    fetchTasks();
     setIsCreateOpen(false);
+    fetchTasks();
   };
   const getBoardDetails = async () => {
     try {
@@ -155,7 +160,7 @@ function Boards() {
   };
   return (
     <div className="p-4">
-      {/* 🔔 Notification */}
+      {/*Notification */}
       {notifications && (
         <div className="fixed top-20 right-4 bg-green-100 text-black px-4 py-2 rounded shadow">
           {notifications}
@@ -206,6 +211,7 @@ function Boards() {
           handleFileUpload={handleFileUpload}
         />
       )}
+      {loading && <Loader />}
     </div>
   );
 }

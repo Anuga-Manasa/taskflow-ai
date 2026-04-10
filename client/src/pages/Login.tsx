@@ -6,8 +6,10 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const res = await api.post("/auth/login", { email, password });
       const token = res.data.token;
       localStorage.setItem("token", token);
@@ -15,6 +17,8 @@ function Login() {
     } catch (error) {
       console.log(error);
       alert("Login failed");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -39,10 +43,21 @@ function Login() {
           className="w-full p-2 border rounded mb-3"
         />
         <button
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          className={`w-full py-2 rounded-lg text-white transition ${
+            loading
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
           onClick={handleLogin}
         >
-          Login
+          {loading ? (
+            <div className="flex justify-center items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Logging in...
+            </div>
+          ) : (
+            "Login"
+          )}
         </button>
         <p className="text-sm text-center mt-4">
           Not a user?{" "}
