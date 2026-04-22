@@ -25,6 +25,9 @@ function Login() {
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md w-80">
         <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
+        <div className="bg-yellow-100 text-yellow-800 text-xs px-3 py-2 rounded mb-4 text-center">
+          ⚠️ Backend may take 30–60 seconds to start (free hosting)
+        </div>
         <input
           type="email"
           placeholder="Email"
